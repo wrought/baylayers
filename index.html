@@ -10,6 +10,9 @@
 	<style type="text/css">
 		html, body {height: 100%;overflow: hidden;padding:0;margin:0;}
 		#map {height: 100%;}
+		.leaflet-control-layers .leaflet-control-layers-list { display:block; position:relative; }
+		.leaflet-control-layers-toggle { display:none; }
+		.leaflet-control-layers-forced { padding:6px 10px 6px 6px; color:#333; background:#fff; font-size:24px; }
 	</style>
 </head>
 <body>
@@ -29,6 +32,7 @@
 	});
 
 	/* Create Layers with GeoJSON Data */
+
 	// neighborhoods
 	var neighborhoods = new L.GeoJSON.AJAX("sources/substack_neighborhoods.geojson", {onEachFeature:popUp});
 	neighborhoods.addTo(map);
@@ -37,12 +41,15 @@
 	var baseLayers = {
 		"Neighborhoods": neighborhoods
 	};
-	L.control.layers(null, baseLayers).addTo(map);
+	L.control.layers(null, baseLayers).addTo(map).setPosition('topleft');
 
 	// copyleft statement
 	L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
 		attribution: '<!--[if lte IE 8]><span style="filter: FlipH; -ms-filter: "FlipH"; display: inline-block;"><![endif]--><span style="-moz-transform: scaleX(-1); -o-transform: scaleX(-1); -webkit-transform: scaleX(-1); transform: scaleX(-1); display: inline-block;">©</span><!--[if lte IE 8]></span><![endif]--> CopyLeft <a href="//github.com/wrought/baylayers"><abbr>baylayers</abbr></a>, All Wrongs Reversed, ' + year + '.'
 	}).addTo(map);
+
+	// jquery cleanup for layer menu
+	$('div.leaflet-control-layers').addClass('leaflet-control-layers-forced')
 
 	</script>
 </body>
