@@ -1,0 +1,47 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+	<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src="http://code.jquery.com/jquery-2.1.0.min.js" type="text/javascript"></script>
+	<link rel="substack_neighborhoods" type="application/json" href="sources/substack_neighborhoods.geojson">
+	<style type="text/css">
+		html, body {height: 100%;overflow: hidden;padding:0;margin:0;}
+		#map {height: 100%;}
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+	<script>
+	//helper functions
+	var d = new Date();
+	var year = d.getFullYear();
+
+	function popup(feature, layer) {
+	    if (feature.properties && feature.properties.popupContent) {
+		layer.bindPopup(feature.properties.popupContent);
+	    }
+	}
+
+	// map
+	var map = new L.Map('map', {
+		center: [37.784444,-122.250833],
+		zoom: 12
+	});
+
+	L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
+		attribution: '<!--[if lte IE 8]><span style="filter: FlipH; -ms-filter: "FlipH"; display: inline-block;"><![endif]--><span style="-moz-transform: scaleX(-1); -o-transform: scaleX(-1); -webkit-transform: scaleX(-1); transform: scaleX(-1); display: inline-block;">©</span><!--[if lte IE 8]></span><![endif]--> CopyLeft <a href="://x.chgrp.org"><abbr>x.chgrp.org</abbr></a>, All Wrongs Reversed, ' + year + '.'
+	}).addTo(map);
+
+	$.getJSON($('link[rel="substack_neighborhoods"]').attr("href"), function(data) {
+		var neighborhoods = L.geoJson(data, {
+			onEachFeature: function (feature, layer) {
+				layer.bindPopup(feature.properties.name);
+			}
+		});
+		neighborhoods.addTo(map);
+	});
+
+	</script>
+</body>
+</html>
