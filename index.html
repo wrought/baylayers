@@ -12,7 +12,7 @@
 		#map {height: 100%;}
 		.leaflet-control-layers .leaflet-control-layers-list { display:block; position:relative; }
 		.leaflet-control-layers-toggle { display:none; }
-		.leaflet-control-layers-forced { padding:6px 10px 6px 6px; color:#333; background:#fff; font-size:24px; }
+		.leaflet-control-layers-forced { padding:6px 10px 6px 6px; color:#333; background:#fff; font-size:20px; }
 	</style>
 </head>
 <body>
@@ -21,8 +21,14 @@
 	//helper functions
 	var d = new Date();
 	var year = d.getFullYear();
-	function popUp(feature, layer) {
+	function popUpName(feature, layer) {
 		layer.bindPopup(feature.properties.name);
+	}
+	function popUpProperties(feature, layer) {
+		layer.bindPopup(feature.properties.BID);
+	}
+	function popUpBeats(feature, layer) {
+		layer.bindPopup("Beat: " + feature.properties.NAME);
 	}
 
 	// map
@@ -33,18 +39,42 @@
 
 	/* Create Layers with GeoJSON Data */
 
+
+	// community benefit districts
+	var bids = new L.GeoJSON.AJAX("sources/BIDs.geojson", {onEachFeature:popUpProperties});
+	bids.addTo(map);
+
+	// police beats
+	var opdbeats = new L.GeoJSON.AJAX("sources/Oak_CommunityPoliceBeats_0.geojson", {onEachFeature:popUpBeats});
+	opdbeats.addTo(map);
+
+	// opd districts
+	var opdds = new L.GeoJSON.AJAX("sources/opd_Districts2013.geojson", {onEachFeature:popUpBeats});
+	opdds.addTo(map);
+
+	// city council districts
+	var ccds = new L.GeoJSON.AJAX("sources/CityCouncilDistricts2013.geojson", {onEachFeature:popUpProperties});
+	ccds.addTo(map);
+
 	// neighborhoods
-	var neighborhoods = new L.GeoJSON.AJAX("sources/substack_neighborhoods.geojson", {onEachFeature:popUp});
+	var neighborhoods = new L.GeoJSON.AJAX("sources/substack_neighborhoods.geojson", {onEachFeature:popUpName});
 	neighborhoods.addTo(map);
 
-	/* Add Layer Toggles */
+
+	/* Create Layer Menu Control */
+
 	var baseLayers = {
+		"Business Improvement Districts": bids,
+		"OPD Police Beats": opdbeats,
+		"OPD Districts": opdds,
+		"City Council Districts": ccds,
 		"Neighborhoods": neighborhoods
 	};
 	L.control.layers(null, baseLayers).addTo(map).setPosition('topleft');
 
 	// copyleft statement
-	L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
+	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+	//L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
 		attribution: '<!--[if lte IE 8]><span style="filter: FlipH; -ms-filter: "FlipH"; display: inline-block;"><![endif]--><span style="-moz-transform: scaleX(-1); -o-transform: scaleX(-1); -webkit-transform: scaleX(-1); transform: scaleX(-1); display: inline-block;">©</span><!--[if lte IE 8]></span><![endif]--> CopyLeft <a href="//github.com/wrought/baylayers"><abbr>baylayers</abbr></a>, All Wrongs Reversed, ' + year + '.'
 	}).addTo(map);
 
