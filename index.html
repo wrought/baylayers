@@ -10,9 +10,9 @@
 	<style type="text/css">
 		html, body {height: 100%;overflow: hidden;padding:0;margin:0;}
 		#map {height: 100%;}
-		.leaflet-control-layers .leaflet-control-layers-list { display:block; position:relative; }
-		.leaflet-control-layers-toggle { display:none; }
-		.leaflet-control-layers-forced { padding:6px 10px 6px 6px; color:#333; background:#fff; font-size:20px; }
+		.leaflet-control-layers-list { font-size:20px; }
+		#map svg path { stroke-width:3px; stroke-opacity: 0.75; fill-opacity:0.3;}
+
 	</style>
 </head>
 <body>
@@ -21,14 +21,31 @@
 	//helper functions
 	var d = new Date();
 	var year = d.getFullYear();
+
+	function popUp(f,l){
+	    var out = [];
+	    if (f.properties){
+		for(key in f.properties){
+		    out.push(key+": "+f.properties[key]);
+		}
+		l.bindPopup(out.join("<br />"));
+	    }
+	}
+
 	function popUpName(feature, layer) {
 		layer.bindPopup(feature.properties.name);
+	}
+	function popUpCCDS(feature, layer) {
+		layer.bindPopup('District ' + feature.properties.Name);
 	}
 	function popUpProperties(feature, layer) {
 		layer.bindPopup(feature.properties.BID);
 	}
 	function popUpBeats(feature, layer) {
 		layer.bindPopup("Beat: " + feature.properties.NAME);
+	}
+	function popUpOPDDs(feature, layer) {
+		layer.bindPopup("District: " + feature.properties.New_Dist);
 	}
 
 	// map
@@ -39,47 +56,79 @@
 
 	/* Create Layers with GeoJSON Data */
 
-
-	// community benefit districts
-	var bids = new L.GeoJSON.AJAX("sources/BIDs.geojson", {onEachFeature:popUpProperties});
-	bids.addTo(map);
+	// business improvement districts
+	var bids = new L.GeoJSON.AJAX("sources/BIDs.geojson", {
+		style: function style(feature) { return { fillColor:'#A76635', color:'#A76635' }; },
+		onEachFeature:popUp
+	});
+//	bids.addTo(map);
 
 	// police beats
-	var opdbeats = new L.GeoJSON.AJAX("sources/Oak_CommunityPoliceBeats_0.geojson", {onEachFeature:popUpBeats});
-	opdbeats.addTo(map);
+	var opdbeats = new L.GeoJSON.AJAX("sources/Oak_CommunityPoliceBeats_0.geojson", {
+		style: function style(feature) { return { fillColor:'#56C0D2', color:'#2C9C9C' }; },
+		onEachFeature:popUpBeats
+	});
+//	opdbeats.addTo(map);
 
 	// opd districts
-	var opdds = new L.GeoJSON.AJAX("sources/opd_Districts2013.geojson", {onEachFeature:popUpBeats});
-	opdds.addTo(map);
+	var opdds = new L.GeoJSON.AJAX("sources/opd_Districts2013.geojson", {
+		style: function style(feature) { return { fillColor:'#79A998', color:'#79A998' }; },
+		onEachFeature:popUpOPDDs
+	});
+//	opdds.addTo(map);
 
 	// city council districts
-	var ccds = new L.GeoJSON.AJAX("sources/CityCouncilDistricts2013.geojson", {onEachFeature:popUpProperties});
+	var ccds = new L.GeoJSON.AJAX("sources/CityCouncilDistricts2013.geojson", {
+		style: function style(feature) { return { fillColor:'#87C344', color:'#87C344' }; },
+		onEachFeature:popUpCCDS
+	});
 	ccds.addTo(map);
 
 	// neighborhoods
-	var neighborhoods = new L.GeoJSON.AJAX("sources/substack_neighborhoods.geojson", {onEachFeature:popUpName});
-	neighborhoods.addTo(map);
+	var neighborhoods = new L.GeoJSON.AJAX("sources/substack_neighborhoods.geojson", {
+		style: function style(feature) { return { fillColor:'#9A6FA4', color:'#9A6FA4' }; },
+		onEachFeature:popUpName
+	});
+//	neighborhoods.addTo(map);
 
 
 	/* Create Layer Menu Control */
 
 	var baseLayers = {
-		"Business Improvement Districts": bids,
-		"OPD Police Beats": opdbeats,
-		"OPD Districts": opdds,
 		"City Council Districts": ccds,
-		"Neighborhoods": neighborhoods
+		"Neighborhoods": neighborhoods,
+		"OPD Districts": opdds,
+		"OPD Police Beats": opdbeats,
+		"Business Improvement Districts": bids,
 	};
-	L.control.layers(null, baseLayers).addTo(map).setPosition('topleft');
+
+	L.control.layers(null, baseLayers, {collapsed:false}).addTo(map).setPosition('topleft');
+
+	/* Interactions */
+
+	function highlightFeature(e) {
+	    var layer = e.target;
+
+	    layer.setStyle({
+		weight: 5,
+		color: '#666',
+		dashArray: '',
+		fillOpacity: 0.7
+	    });
+
+	    if (!L.Browser.ie && !L.Browser.opera) {
+		layer.bringToFront();
+	    }
+	}
+
+	function resetHighlight(e) {
+	    geojson.resetStyle(e.target);
+	}
 
 	// copyleft statement
-	L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-	//L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
+	L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png', {
 		attribution: '<!--[if lte IE 8]><span style="filter: FlipH; -ms-filter: "FlipH"; display: inline-block;"><![endif]--><span style="-moz-transform: scaleX(-1); -o-transform: scaleX(-1); -webkit-transform: scaleX(-1); transform: scaleX(-1); display: inline-block;">©</span><!--[if lte IE 8]></span><![endif]--> CopyLeft <a href="//github.com/wrought/baylayers"><abbr>baylayers</abbr></a>, All Wrongs Reversed, ' + year + '.'
 	}).addTo(map);
-
-	// jquery cleanup for layer menu
-	$('div.leaflet-control-layers').addClass('leaflet-control-layers-forced')
 
 	</script>
 </body>
