@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+	<title>BayLayers</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<link rel="stylesheet" href="static/css/leaflet.css" />
@@ -33,19 +34,19 @@
 	}
 
 	function popUpName(feature, layer) {
-		layer.bindPopup(feature.properties.name);
+		layer.bindPopup('<a href="https://oaklandwiki.org/' + feature.properties.name + '" target="_blank">' + feature.properties.name + "</a>");
 	}
 	function popUpCCDS(feature, layer) {
-		layer.bindPopup('District ' + feature.properties.Name);
+		layer.bindPopup('<a href="https://oaklandwiki.org/District_' + feature.properties.Name + '" target=_blank">Council District: ' + feature.properties.Name + "</a>");
 	}
 	function popUpProperties(feature, layer) {
 		layer.bindPopup(feature.properties.BID);
 	}
 	function popUpBeats(feature, layer) {
-		layer.bindPopup("Beat: " + feature.properties.NAME);
+		layer.bindPopup("OPD Beat: " + feature.properties.Beat + "<br/>OPD District: " + feature.properties.POL_DIST + "<br/>OPD Section: " + feature.properties.POL_SECT + "<br/>Acres: " + feature.properties.ACRES);
 	}
 	function popUpOPDDs(feature, layer) {
-		layer.bindPopup("District: " + feature.properties.New_Dist);
+		layer.bindPopup('<a href="https://oaklandwiki.org/Police_Districts#District_' + feature.properties.New_Dist + '" target"_blank">OPD District: ' + feature.properties.New_Dist + "</a>");
 	}
 
 	// map
